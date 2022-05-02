@@ -1,0 +1,162 @@
+--// Exploit Fix \\--
+if not pcall(function() return syn.protect_gui end) then
+    syn = {}
+    syn.protect_gui = function(A_1)
+        A_1.Parent = game:GetService("CoreGui")
+    end
+end
+
+-- // Variables
+local Connects = {}
+local Plates = {}
+local Debounce = {}
+local Trust = {}
+local GetService = game.GetService
+local Workspace = GetService(game, "Workspace")
+local FindFirstChildWhichIsA = game.FindFirstChildWhichIsA
+local GuessFindResult = nil
+local Plr = game.Players.LocalPlayer
+
+-- // Loadstring
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/CJStyles123/squid_game_marker/main/ScriptPatch"),true))()
+local notifications = loadstring(game:HttpGet(("https://raw.githubusercontent.com/AbstractPoo/Main/main/Notifications.lua"),true))()
+
+-- // Functioning Codes below
+for i,v in pairs(getreg()) do
+    if typeof(v)=="function" and islclosure(v) and not is_synapse_function(v) and string.find(getinfo(v).source,"Animate") and table.find(getconstants(v),"Winners") then
+        getreg()[i] = function() end
+    end
+end
+
+-- // Finding the Guess Model
+function findit()
+for i,v in pairs(Workspace:GetChildren()) do
+if string.find(v.Name,"Guess") or string.find(v.Name,"Gue\194") or string.find(v.Name,"Gu\194") or string.find(v.Name,"G\194") and not FindFirstChildWhichIsA(v, "Humanoid") then
+return v.Name
+end
+end
+end
+
+-- // Get the Result and set it to the Variable
+GuessFindResult = Workspace[findit()]
+
+-- // Creating a folder to handle the SelectionBoxes
+local SBFolder = Instance.new("Folder",game.CoreGui)
+SBFolder.Name = "SBFolder"
+
+-- // Functioning Codes below
+function ResumeScript()
+repeat task.wait() until GuessFindResult ~= nil
+for i = 1, 100 do
+ local Guess = GuessFindResult[i]
+ local a = Guess['\194\173']
+ local b = Guess['\194\173\194\173']
+ local at = i..'A'
+ local bt = i..'B'
+ local ACube =  Instance.new("SelectionBox",SBFolder)
+ACube.SurfaceColor3 = Color3.new(1,1,1)
+ACube.Adornee = a
+ACube.Transparency = 1
+ACube.SurfaceTransparency = 0
+ local BCube = Instance.new("SelectionBox",SBFolder)
+BCube.SurfaceColor3 = Color3.new(1,1,1)
+BCube.Adornee = b
+BCube.Transparency = 1
+BCube.SurfaceTransparency = 0
+ Plates[at] = ACube
+ Plates[bt] = BCube
+ Debounce[at] = false
+ Debounce[bt] = false
+ Trust[at] = 0
+ Trust[bt] = 0
+ a.TouchInterest:Remove()
+ b.TouchInterest:Remove()
+ local function af(touched)
+   if Debounce[at] then return end
+   if Trust[bt] > Trust[at] + 5 then
+     Plates[at].SurfaceTransparency = 0
+     Debounce[at] = true
+     return
+   elseif Trust[at] > Trust[bt] + 5 then
+     Plates[bt].SurfaceTransparency = 0
+     Debounce[bt] = true
+     Debounce[at] = true
+   end
+   if touched.Parent.ClassName == 'Accessory' then return end
+   if touched.Parent.ClassName == 'Tool' then return end
+   if touched.Parent.Humanoid.Health == 0 then return end
+   Debounce[at] = true
+   task.wait(1)
+   if not touched.Parent then
+     task.wait(0.5)
+     Debounce[bt] = false
+     return
+   end
+   if touched.Parent.Humanoid.Health == 100 then
+     if Trust[at] > Trust[bt] - 2 then
+       Plates[at].SurfaceColor3 = Color3.new(0, 255, 0)
+       Plates[bt].SurfaceColor3 = Color3.new(255, 0, 0)
+       Trust[at] = Trust[at] + 1
+     else
+       Plates[at].SurfaceColor3 = Color3.new(255, 0, 0)
+     end
+   end
+   task.wait(0.5)
+   Debounce[at] = false
+ end
+ local function bf(touched)
+   if Debounce[bt] then return end
+   if Trust[at] > Trust[bt] + 5 then
+     Plates[bt].SurfaceTransparency = 0
+     Debounce[bt] = true
+     return
+   elseif Trust[bt] > Trust[at] + 5 then
+     Plates[at].SurfaceTransparency = 0
+     Debounce[at] = true
+     Debounce[bt] = true
+   end
+   if touched.Parent.ClassName == 'Accessory' then return end
+   if touched.Parent.ClassName == 'Tool' then return end
+   if touched.Parent.Humanoid.Health == 0 then return end
+   Debounce[bt] = true
+   task.wait(1)
+   if not touched.Parent then
+     task.wait(0.5)
+     Debounce[bt] = false
+     return
+   end
+   if touched.Parent.Humanoid.Health == 100 then
+     if Trust[bt] >= Trust[at] - 2 then
+       Plates[bt].SurfaceColor3 = Color3.new(0, 255, 0)
+       Plates[at].SurfaceColor3 = Color3.new(255, 0, 0)
+       Trust[bt] = Trust[bt] + 1
+     else
+       Plates[bt].SurfaceColor3 = Color3.new(255, 0, 0)
+     end
+   end
+   wait(2)
+   Debounce[bt] = false
+ end
+ Connects[at] = a.Touched:Connect(af)
+ Connects[bt] = b.Touched:Connect(bf)
+end
+end
+
+-- // Checking to make sure the FixingScript.lua returns if the script is patched or not and prompting the LocalPlayer
+if FixingScript ~= true then
+notifications:notify{
+    Title = "Safety Caution",
+    Description = "I am <b><font color=\"rgb(191,45,45)\">NOT</font></b> to blame if you ever get banned! I <b><font color=\"rgb(191,45,45)\">RECOMMEND</font></b> you use this on an alt (if you're on an alt ignore this), Also when the game ends you have to rejoin  |  Made by DOOMZDAY#5250",
+    Accept = {
+    Text = "Continue Script",
+        Callback = function()
+        ResumeScript()
+        end,
+    },
+}
+else
+notifications:message{
+    Title = "Script Patched",
+    Description = "Please wait for a patch to come out!",
+}
+end
